@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Calculadora de Vídeos</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet"/>
   <style>
     body {
       font-family: 'Orbitron', sans-serif;
       background: url('https://www.transparenttextures.com/patterns/dark-mosaic.png'), radial-gradient(circle at center, #0f0c29, #302b63, #24243e);
+      background-blend-mode: overlay;
       color: #00ffcc;
       margin: 0;
       padding: 0;
@@ -16,15 +17,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-blend-mode: overlay;
     }
 
     .container {
-      background: rgba(10, 10, 10, 0.8);
+      background: rgba(10, 10, 10, 0.85);
       border: 2px solid #9f00ff;
       border-radius: 15px;
       padding: 30px;
-      max-width: 420px;
+      max-width: 440px;
       width: 90%;
       box-shadow: 0 0 25px #00ffcc;
     }
@@ -57,7 +57,7 @@
 
     .result {
       margin-top: 20px;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
       color: #00ffcc;
       text-shadow: 0 0 5px #00ffcc;
@@ -69,10 +69,12 @@
       font-weight: bold;
     }
 
-    .desc {
-      font-size: 14px;
-      color: #999;
-      margin-bottom: 5px;
+    .section-title {
+      margin-top: 30px;
+      font-size: 18px;
+      color: #9f00ff;
+      text-align: center;
+      text-shadow: 0 0 8px #9f00ff;
     }
   </style>
 </head>
@@ -80,43 +82,57 @@
   <div class="container">
     <h2>Calculadora de Vídeos</h2>
 
-    <label for="videoCount">Quantos vídeos você quer?</label>
-    <input type="number" id="videoCount" min="1" placeholder="Ex: 5" oninput="calculatePrice()">
+    <label for="videoCount">Quantidade de vídeos:</label>
+    <input type="number" id="videoCount" min="1" placeholder="Ex: 5" oninput="calculateTotal()">
 
     <label for="discount">Desconto (%):</label>
-    <input type="number" id="discount" min="1" max="20" placeholder="Máx: 20%" oninput="calculatePrice()">
+    <input type="number" id="discount" min="1" max="20" placeholder="Máx: 20%" oninput="calculateTotal()">
+
+    <div class="section-title">Ou calcule por duração</div>
+
+    <label for="videoSeconds">Duração do vídeo (em segundos):</label>
+    <input type="number" id="videoSeconds" min="1" placeholder="Ex: 90" oninput="calculateTotal()">
 
     <div class="result" id="priceResult"></div>
     <div class="warning" id="warning"></div>
 
-    <!-- Opcional: Som futurista -->
     <audio id="beepSound" src="https://assets.mixkit.co/active_storage/sfx/1850/1850-preview.mp3" preload="auto"></audio>
   </div>
 
   <script>
-    function calculatePrice() {
+    function calculateTotal() {
       const qty = parseInt(document.getElementById("videoCount").value);
       const discountInput = parseFloat(document.getElementById("discount").value);
+      const seconds = parseInt(document.getElementById("videoSeconds").value);
       const result = document.getElementById("priceResult");
       const warning = document.getElementById("warning");
       const sound = document.getElementById("beepSound");
 
-      if (!qty || qty < 1) {
-        result.textContent = "";
-        warning.textContent = "";
-        return;
+      let output = "";
+      let warnings = "";
+
+      // Cálculo por quantidade de vídeos
+      if (!isNaN(qty) && qty >= 1) {
+        let basePrice = qty <= 5 ? qty * 100 : qty * 66.5;
+        let discount = (!isNaN(discountInput) && discountInput >= 1 && discountInput <= 20) ? discountInput : 0;
+        let discountValue = basePrice * (discount / 100);
+        let finalPrice = basePrice - discountValue;
+
+        output += `🟢 Total por quantidade: R$ ${finalPrice.toFixed(2)} ${discount > 0 ? `(com ${discount}% de desconto)` : ''}<br>`;
+        if (discount > 20) warnings += "⚠️ Máximo de 20% de desconto permitido.<br>";
       }
 
-      let basePrice = qty <= 5 ? qty * 100 : qty * 66.5;
+      // Cálculo por duração em segundos
+      if (!isNaN(seconds) && seconds > 0) {
+        let pricePerSecond = 1.65;
+        let totalBySeconds = seconds * pricePerSecond;
+        output += `🟣 Total por duração: R$ ${totalBySeconds.toFixed(2)}<br>`;
+      }
 
-      let discount = (!isNaN(discountInput) && discountInput >= 1 && discountInput <= 20) ? discountInput : 0;
-      let discountValue = basePrice * (discount / 100);
-      let finalPrice = basePrice - discountValue;
+      result.innerHTML = output;
+      warning.innerHTML = warnings;
 
-      result.textContent = `Total: R$ ${finalPrice.toFixed(2)} ${discount > 0 ? `(com ${discount}% de desconto)` : ''}`;
-      warning.textContent = discount > 20 ? "Máximo de 20% de desconto permitido." : "";
-
-      if (!isNaN(qty)) {
+      if (qty || seconds) {
         sound.currentTime = 0;
         sound.play();
       }
