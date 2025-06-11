@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Vídeos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: #0f0c29;
+      color: #00ffff;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #particles-js {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 25px #00fff7;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      border: 2px solid #00ffff;
+      margin: 100px auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    h2 {
+      color: #ff00ff;
+      margin-bottom: 20px;
+      text-shadow: 0 0 8px #ff00ff;
+    }
+
+    label {
+      font-size: 18px;
+      color: #00ffff;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: #1a1a1a;
+      color: #00ffff;
+      box-shadow: 0 0 10px #00ffff inset;
+      margin-top: 8px;
+      outline: none;
+    }
+
+    input[type="number"]::placeholder {
+      color: #888;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 20px;
+      color: #00ff88;
+      font-weight: bold;
+      text-shadow: 0 0 5px #00ff88;
+    }
+
+    .warning {
+      color: #ff4444;
+      margin-top: 10px;
+      font-weight: bold;
+      text-shadow: 0 0 5px #ff4444;
+    }
+  </style>
+</head>
+<body>
+  <div id="particles-js"></div>
+
+  <div class="container">
+    <h2>Calculadora de Pacote de Vídeos</h2>
+    <label for="videoCount">Quantos vídeos você quer?</label>
+    <input type="number" id="videoCount" min="1" placeholder="Digite o número de vídeos" oninput="calculatePrice(); playBeep();">
+    <div class="result" id="priceResult"></div>
+    <div class="warning" id="warning"></div>
+  </div>
+
+  <audio id="beepSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.wav" preload="auto"></audio>
+
+  <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+  <script>
+    particlesJS("particles-js", {
+      "particles": {
+        "number": { "value": 80 },
+        "color": { "value": "#00ffff" },
+        "shape": {
+          "type": "circle",
+          "stroke": { "width": 0, "color": "#000000" }
+        },
+        "opacity": {
+          "value": 0.5,
+          "random": true
+        },
+        "size": {
+          "value": 3,
+          "random": true
+        },
+        "move": {
+          "enable": true,
+          "speed": 1,
+          "direction": "none",
+          "random": true,
+          "out_mode": "out"
+        }
+      },
+      "interactivity": {
+        "events": {
+          "onhover": { "enable": true, "mode": "repulse" },
+          "onclick": { "enable": false }
+        }
+      },
+      "retina_detect": true
+    });
+
+    function calculatePrice() {
+      const input = document.getElementById("videoCount");
+      const result = document.getElementById("priceResult");
+      const warning = document.getElementById("warning");
+
+      const qty = parseInt(input.value);
+
+      if (!qty || qty < 1) {
+        result.textContent = "";
+        warning.textContent = "";
+        return;
+      }
+
+      let total = qty <= 5 ? qty * 100 : qty * 66.5;
+
+      result.textContent = `Total: R$ ${total.toFixed(2)}`;
+      warning.textContent = "";
+    }
+
+    function playBeep() {
+      const beep = document.getElementById("beepSound");
+      beep.currentTime = 0;
+      beep.play();
+    }
+  </script>
+</body>
+</html>
