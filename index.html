@@ -31,7 +31,6 @@
 
     h2 {
       color: #9f00ff;
-      text-shadow: 0 0 10px #9f00ff;
       text-align: center;
       margin-bottom: 25px;
     }
@@ -60,7 +59,16 @@
       font-size: 16px;
       font-weight: bold;
       color: #00ffcc;
-      text-shadow: 0 0 5px #00ffcc;
+    }
+
+    .total-box {
+      background-color: #222;
+      padding: 10px;
+      border-radius: 8px;
+      color: #00ffcc;
+      margin-top: 10px;
+      font-weight: bold;
+      text-align: center;
     }
 
     .warning {
@@ -74,7 +82,6 @@
       font-size: 18px;
       color: #9f00ff;
       text-align: center;
-      text-shadow: 0 0 8px #9f00ff;
     }
   </style>
 </head>
@@ -88,12 +95,15 @@
     <label for="discount">Desconto (%):</label>
     <input type="number" id="discount" min="1" max="20" placeholder="Máx: 20%" oninput="calculateTotal()">
 
+    <div class="total-box" id="priceByQuantity">Total por quantidade: R$ 0,00</div>
+
     <div class="section-title">Ou calcule por duração</div>
 
     <label for="videoSeconds">Duração do vídeo (em segundos):</label>
     <input type="number" id="videoSeconds" min="1" placeholder="Ex: 90" oninput="calculateTotal()">
 
-    <div class="result" id="priceResult"></div>
+    <div class="total-box" id="priceBySeconds">Total por segundos: R$ 0,00</div>
+
     <div class="warning" id="warning"></div>
 
     <audio id="beepSound" src="https://assets.mixkit.co/active_storage/sfx/1850/1850-preview.mp3" preload="auto"></audio>
@@ -104,34 +114,37 @@
       const qty = parseInt(document.getElementById("videoCount").value);
       const discountInput = parseFloat(document.getElementById("discount").value);
       const seconds = parseInt(document.getElementById("videoSeconds").value);
-      const result = document.getElementById("priceResult");
+
       const warning = document.getElementById("warning");
       const sound = document.getElementById("beepSound");
 
-      let output = "";
+      const resultQty = document.getElementById("priceByQuantity");
+      const resultSec = document.getElementById("priceBySeconds");
+
       let warnings = "";
 
-      // Cálculo por quantidade de vídeos
+      // Cálculo por quantidade
+      let totalQty = 0;
       if (!isNaN(qty) && qty >= 1) {
         let basePrice = qty <= 5 ? qty * 100 : qty * 66.5;
         let discount = (!isNaN(discountInput) && discountInput >= 1 && discountInput <= 20) ? discountInput : 0;
         let discountValue = basePrice * (discount / 100);
-        let finalPrice = basePrice - discountValue;
-
-        output += `🟢 Total por quantidade: R$ ${finalPrice.toFixed(2)} ${discount > 0 ? `(com ${discount}% de desconto)` : ''}<br>`;
-        if (discount > 20) warnings += "⚠️ Máximo de 20% de desconto permitido.<br>";
+        totalQty = basePrice - discountValue;
+        if (discountInput > 20) warnings += "⚠️ Máximo de 20% de desconto permitido.<br>";
       }
 
-      // Cálculo por duração em segundos
+      // Cálculo por segundos
+      let totalSeconds = 0;
       if (!isNaN(seconds) && seconds > 0) {
-        let pricePerSecond = 1.65;
-        let totalBySeconds = seconds * pricePerSecond;
-        output += `🟣 Total por duração: R$ ${totalBySeconds.toFixed(2)}<br>`;
+        totalSeconds = seconds * 1.65;
       }
 
-      result.innerHTML = output;
+      // Mostrar resultados
+      resultQty.textContent = `Total por quantidade: R$ ${totalQty.toFixed(2)}`;
+      resultSec.textContent = `Total por segundos: R$ ${totalSeconds.toFixed(2)}`;
       warning.innerHTML = warnings;
 
+      // Som futurista
       if (qty || seconds) {
         sound.currentTime = 0;
         sound.play();
